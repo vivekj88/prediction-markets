@@ -1,0 +1,135 @@
+--------  ----------------------------------------  ----------------  --------  ------------------  ------------------  ------------------
+Date      Narration				    Chq./Ref.No.      Value Dt  Withdrawal Amt.        Deposit Amt.     Closing Balance
+--------  ----------------------------------------  ----------------  --------  ------------------  ------------------  ------------------
+
+14/01/23  YHDF1675493630/LIC OF INDIA               0000230148692875  14/01/23           9,616.00                           3,605,923.75   
+18/01/23  IB FUNDS TRANSFER CR-50100552928241-VIVE  MB18085540700T41  18/01/23                            800,000.00        4,405,923.75   
+          K JAGANNATHAN                                                                                                                     
+28/01/23  KQTXW7UPAZZ25OGRCU/PAYUBHARTIAIRTELLIMI   0000230288844459  28/01/23             500.00                           4,405,423.75   
+28/01/23  112779624731/CCAAIRTELIN                  0000230288847429  28/01/23             666.00                           4,404,757.75   
+28/01/23  NEFT DR-IDFB0080191-SURYAM VULAVAKATTU-N  N028232306236874  28/01/23         195,000.00                           4,209,757.75   
+          ETBANK, MUM-N028232306236874-TO SELLER G                                                                                          
+          1406                                                                                                                              
+29/01/23  NEFT DR-IDFB0080191-SURYAM VULAVAKATTU-N  N029232306377822  29/01/23       4,056,650.00                             153,107.75   
+          ETBANK, MUM-N029232306377822-TO SELLER G                                                                                          
+          1406                                                                                                                              
+29/01/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB29210717321487  29/01/23                             71,849.54          224,957.29   
+          VEK JAGANNATHAN                                                                                                                   
+29/01/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB29213012931776  29/01/23                            239,500.00          464,457.29   
+          VEK JAGANNATHAN                                                                                                                   
+29/01/23  NEFT DR-ICIC0000411-V SAI CHAITHANYA-NET  N029232306535812  29/01/23         448,350.00                              16,107.29   
+          BANK, MUM-N029232306535812-TDS PAYMENT G                                                                                          
+          1406                                                                                                                              
+29/01/23  NEFT DR-ICIC0000411-V SAI CHAITHANYA-NET  N029232306532924  29/01/23          15,000.00                               1,107.29   
+          BANK, MUM-N029232306532924-ASSIGN AGMT S                                                                                          
+          TAMP                                                                                                                              
+06/03/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB06092532696635  06/03/23                             18,000.00           19,107.29   
+          VEK JAGANNATHAN                                                                                                                   
+06/03/23  NEFT DR-ICIC0000411-V SAI CHAITHANYA-NET  N065232358360931  06/03/23           8,000.00                              11,107.29   
+          BANK, MUM-N065232358360931-ASGN AGMT COU                                                                                          
+          RIER                                                                                                                              
+21/03/23  KQTH25EPAN62PNOUDY/PAYUERPCHENNAICORPOR   0000230807179138  21/03/23           1,928.00                               9,179.29   
+01/04/23  CREDIT INTEREST CAPITALISED               000000000000000   31/03/23                              9,041.00           18,220.29   
+01/04/23  TAX DEDUCTED                              000000000000000   31/03/23           2,820.79                              15,399.50   
+10/04/23  NEFT DR-BARB0BANGAL-BHARTIYA URBAN PVT L  N100232410659427  10/04/23           2,260.00                              13,139.50   
+          TD-NETBANK, MUM-N100232410659427-G1406 K                                                                                          
+          HATA FEE                                                                                                                          
+26/04/23  IB FUNDS TRANSFER CR-50100552928241-VIVE  MB26120718627ET3  26/04/23                            100,000.00          113,139.50   
+          K JAGANNATHAN                                                                                                                     
+27/04/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB27143611919407  27/04/23                            100,000.00          213,139.50   
+          VEK JAGANNATHAN                                                                                                                   
+27/04/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB27203532745052  27/04/23                            200,000.00          413,139.50   
+          VEK JAGANNATHAN                                                                                                                   
+27/04/23  UPI-K RAMACHANDRAN-KRAM1968@OKHDFCBANK-I  0000311797200860  27/04/23              10.00                             413,129.50   
+          OBA0001599-311797200860-UPI                                                                                                       
+29/04/23  CHQ PAID-MICR CTS-CH-SURYAM VULAVAKATTU   0000000000000002  29/04/23         200,000.00                             213,129.50   
+01/05/23  IMPS-312110140574-VINITA J-HDFC-XXXXXXXX  0000312110140574  01/05/23                             13,550.00          226,679.50   
+          XX5745-EXTRA MONEY RESENT                                                                                                         
+04/05/23  UPI-VINITA  JAGANNATHAN-VINITA.JAGANNATH  0000312482996608  04/05/23              10.00                             226,669.50   
+          AN-2@OKICICI-KKBK0000430-312482996608-UP                                                                                          
+          I                                                                                                                                 
+04/05/23  UPI-ALOK GUPTA-ALOKGUPTA2K-2@OKHDFCBANK-  0000312483032943  04/05/23          84,800.00                             141,869.50   
+          HDFC0004117-312483032943-UPI                                                                                                      
+06/05/23  CHQ PAID-MICR CTS-CH-GAIL GAS LTD         0000000000000003  06/05/23             500.00                             141,369.50   
+17/05/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB17115955362524  17/05/23                            620,000.00          761,369.50   
+          VEK JAGANNATHAN                                                                                                                   
+18/05/23  KQTH44MFAZ4KBPW2C4/PAYUINDIGOAIRLINES     0000231388622468  18/05/23          13,666.00                             747,703.50   
+18/05/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB18120551270112  18/05/23                             20,000.00          767,703.50   
+          VEK JAGANNATHAN                                                                                                                   
+18/05/23  50200053425811-TPT-G1406 INTERIORS EXE1-  0000000309152519  18/05/23         754,221.00                              13,482.50   
+          KALEIDOSCOPE INTERIORS AND PROPERTY MGT                                                                                           
+26/05/23  IB FUNDS TRANSFER CR-50100552928241-VIVE  MB26093641434T51  26/05/23                            120,000.00          133,482.50   
+          K JAGANNATHAN                                                                                                                     
+31/05/23  ACH D- HDFCLTD-347773981                  0000008022568151  31/05/23          97,597.00                              35,885.50   
+27/06/23  50200053425811-TPT-VJTOKENG1406KIAPM-KAL  0000000194850230  27/06/23                             20,000.00           55,885.50   
+          EIDOSCOPE INTERIORS AND PROPERTY MGT                                                                                              
+29/06/23  IB FUNDS TRANSFER CR-50100552928241-VIVE  MB29181724150ET9  29/06/23                             50,000.00          105,885.50   
+          K JAGANNATHAN                                                                                                                     
+30/06/23  ACH D- HDFCLTD-350704585                  0000008038034181  30/06/23          97,597.00                               8,288.50   
+01/07/23  CREDIT INTEREST CAPITALISED               000000000000000   30/06/23                                572.00            8,860.50   
+01/07/23  TAX DEDUCTED                              000000000000000   30/06/23             178.46                               8,682.04   
+
+05/07/23  IB FUNDS TRANSFER CR-50100552928241-VIVE  MB05110149969T16  05/07/23                             20,000.00           28,682.04   
+          K JAGANNATHAN                                                                                                                     
+05/07/23  IMPS-318611345789-ALFRED JORDAN PRIVATE   0000318611345789  05/07/23          11,800.00                              16,882.04   
+          LIMITED-INDB-XXXXXXXX9890-TDS RETURN FIL                                                                                          
+          ING SERVICE                                                                                                                       
+07/07/23  IB FUNDS TRANSFER CR-50100552928241  -VI  IB07232528975980  07/07/23                             80,000.00           96,882.04   
+          VEK JAGANNATHAN                                                                                                                   
+07/07/23  50200053425811-TPT-INTERIORS FINAL PYMT-  0000000388180835  07/07/23          64,540.00                              32,342.04   
+          KALEIDOSCOPE INTERIORS AND PROPERTY MGT                                                                                           
+10/07/23  KQTHU54MAJ5KLOWWCI/PAYUBHARTIAIRTELLIMI   0000231914309550  10/07/23              10.00                              32,332.04   
+15/07/23  50200053425811-TPT-RENTDEPOSITG1406ALOK-  0000000184700990  15/07/23                            255,000.00          287,332.04   
+          KALEIDOSCOPE INTERIORS AND PROPERTY MGT                                                                                           
+20/07/23  KQTHU4MOAB5K5NGRCA/PAYUAMAZON             0000232010578855  20/07/23           2,303.00                             285,029.04   
+24/07/23  ZHDF1281788307/BILLDKVODAFONEIDEA         0000232052767529  24/07/23             495.00                             284,534.04   
+24/07/23  ZHDF1281789782/BILLDKVODAFONEIDEA         0000232052768213  24/07/23             500.00                             284,034.04   
+28/07/23  CBDT/BANK REFERENCE NO:K2320905987717/CI  0230728190002405  28/07/23          91,389.00                             192,645.04   
+          N NO:23072800659996HDFC/ONLINE                                                                                                    
+31/07/23  ACH D- HDFC BANK LTD-353658244            0000008029671212  31/07/23          97,597.00                              95,048.04   
+09/08/23  50200053425811-TPT-RENTAMCDELTA-KALEIDOS  0000000375305866  09/08/23           2,974.00                              92,074.04   
+          COPE INTERIORS AND PROPERTY MGT                                                                                                   
+10/08/23  KQTHI54OAFZK5PW3CI/PAYUAMAZON             0000232224035754  10/08/23             319.00                              91,755.04   
+13/08/23  KQTHI5MMAZZKPPG2CI/PAYUAMAZON             0000232255660243  13/08/23             767.00                              90,988.04   
+22/08/23  .IMPS P2P 318611345789#05/07/2023 050723  MIR2423450300797  22/08/23               5.90                              90,982.14   
+          -MIR2423450300797                                                                                                                 
+24/08/23  IB FUNDS TRANSFER CR-50100552928241-VIVE  MB24084126336ET2  24/08/23                             20,000.00          110,982.14   
+          K JAGANNATHAN                                                                                                                     
+25/08/23  02691610014371-TPT-HOUSE LOAN-SARAN KUMA  0000000551381716  25/08/23                                500.00          111,482.14   
+          R K                                                                                                                               
+25/08/23  02691610014371-TPT-HOUSE LOAN-SARAN KUMA  0000000569094073  25/08/23                             49,500.00          160,982.14   
+          R K                                                                                                                               
+26/08/23  02691610014371-TPT-HOUSE LOAN-SARAN KUMA  0000000572247095  26/08/23                            150,000.00          310,982.14   
+          R K                                                                                                                               
+30/08/23  50100095325745-TPT-RAKSHABANDHAN-VINITA   0000000289455795  30/08/23          15,000.00                             295,982.14   
+31/08/23  ACH D- HDFC BANK LTD-356622482            0000008024331243  31/08/23          97,597.00                             198,385.14   
+01/09/23  50200053425811-TPT-RENTAUG23BYALOK-KALEI  0000000291221031  01/09/23                             30,960.00          229,345.14   
+          DOSCOPE INTERIORS AND PROPERTY MGT                                                                                                
+02/09/23  112992093283/CCACHENNAIMETROWATER         0002324525730681  02/09/23           1,268.00                             228,077.14   
+19/09/23  NEFT CR-IOBA0001492-SUDHARSANAN S-VIVEK   IOBAN23262433811  19/09/23                             41,668.00          269,745.14   
+          JAGANNATHAN-IOBAN23262433811                                                                                                      
+22/09/23  DEBIT CARD ANNUAL FEE-AUG-2023 240823-MI  MIR2426427798594  22/09/23             236.00                             269,509.14   
+          R2426427798594                                                                                                                    
+30/09/23  ACH D- HDFC BANK LTD-359606359            0000008031272273  30/09/23          97,597.00                             171,912.14   
+01/10/23  CREDIT INTEREST CAPITALISED               000000000000000   30/09/23                              1,323.00          173,235.14   
+01/10/23  TAX DEDUCTED                              000000000000000   30/09/23             412.78                             172,822.36   
+01/10/23  50200053425811-TPT-RENTJ1406BYALOKGUPTA-  0000000863729355  01/10/23                             30,960.00          203,782.36   
+          KALEIDOSCOPE INTERIORS AND PROPERTY MGT                                                                                           
+18/10/23  UPI-RAZORPAYAIRTEL-AIRTELIN.RZP@ICICI-IC  0000329144598903  18/10/23             666.00                             203,116.36   
+          IC0DC0099-329144598903-PAY VIA RAZORPAY                                                                                           
+30/10/23  KQUXS44OA54KPNOXCI/PAYUAMAZON             0002330331713396  30/10/23           1,485.00                             201,631.36   
+31/10/23  ACH D- HDFC BANK LTD-362613273            0000008032918304  31/10/23          97,597.00                             104,034.36   
+01/11/23  50200053425811-TPT-RENTG1406OCT23KIAPM-K  0000000439136996  01/11/23                             30,960.00          134,994.36   
+          ALEIDOSCOPE INTERIORS AND PROPERTY MGT                                                                                            
+12/11/23  KQUXQ5MEAR5KBPWVCE/PAYUAMAZON             0002331632885195  12/11/23             824.00                             134,170.36   
+17/11/23  113080458454/CCAAIRTELIN                  0002332133331900  17/11/23             899.00                             133,271.36   
+20/11/23  KQUXQ7UPAZ52JOWTD4/PAYUBHARTIAIRTELLIMI   0002332433814998  20/11/23             666.00                             132,605.36   
+23/11/23  113086611212/CCABBMPBANGALORE             0002332734125067  23/11/23           7,260.16                             125,345.20   
+30/11/23  ACH D- HDFC BANK LTD-365714867            0000008035670334  30/11/23          97,597.00                              27,748.20   
+01/12/23  50200053425811-TPT-RENTNOV23G1406ALOK-KA  0000000365448124  01/12/23                             30,960.00           58,708.20   
+          LEIDOSCOPE INTERIORS AND PROPERTY MGT                                                                                             
+28/12/23  IB FUNDS TRANSFER CR-50100552928241-VIVE  MB28101203898T38  28/12/23                             50,000.00          108,708.20   
+          K JAGANNATHAN                                                                                                                     
+31/12/23  ACH D- HDFC BANK LTD-368754389            0000008011649365  31/12/23          97,597.00                              11,111.20   
+01/01/24  CREDIT INTEREST CAPITALISED               000000000000000   31/12/23                                985.00           12,096.20   
+01/01/24  TAX DEDUCTED                              000000000000000   31/12/23             307.32                              11,788.88   
