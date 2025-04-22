@@ -3,6 +3,7 @@ name: run kalshi_kxspotifyartistd_drake.py
 on:
   schedule:
     - cron: '*/2 * * * *'
+  workflow_dispatch:
 
 jobs:
   build:
