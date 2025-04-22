@@ -8,7 +8,12 @@ import requests
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "vivek.zapier@gmail.com")
-SENDER_PASSWORD = os.getenv("SENDER_PASSWORD", "lmkx unfr qjgz monb")
+
+try:
+    SENDER_PASSWORD = os.environ["SENDER_PASSWORD"]
+except KeyError:
+    SENDER_PASSWORD = "Secret not available!"
+
 RECIPIENT_EMAIL = "vivek.zapier@gmail.com"
 JSON_FILE_PATH = "kalshi_markets.json"
 
