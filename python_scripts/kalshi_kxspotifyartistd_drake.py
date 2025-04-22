@@ -48,9 +48,9 @@ def check_and_send_email(file_path):
             for market in markets:
                 ticker = market.get("ticker", "")
                 yes_ask = market.get("yes_ask")
-                if "KXSPOTIFYARTISTD" in ticker and "DRA" in ticker and isinstance(yes_ask, (int, float)) and yes_ask < 70:
-                    subject = "Kalshi Market Alert: DRA Spotify Contract Below 70"
-                    body = f"The Kalshi market with ticker '{ticker}' has a yes_ask price of {yes_ask}, which is below 70."
+                if "KXSPOTIFYARTISTD" in ticker and "DRA" in ticker and isinstance(yes_ask, (int, float)) and yes_ask > 0 and yes_ask < 90:
+                    subject = "Kalshi Market Alert: DRA Spotify Contract"
+                    body = f"The Kalshi market with ticker '{ticker}' has a yes_ask price of {yes_ask}."
                     send_email(subject, body)
                     print(f"Alert email sent for {ticker}")
                     return  # Send only one email if multiple contracts match for now
