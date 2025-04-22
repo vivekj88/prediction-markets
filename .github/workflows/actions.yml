@@ -2,7 +2,7 @@ name: run kalshi_kxspotifyartistd_drake.py
 
 on:
   schedule:
-    - cron: '*/2 * * * *'
+    - cron: '0,30 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -25,5 +25,5 @@ jobs:
           
       - name: execute py script
         env:
-          SOME_SECRET: ${{ secrets.SOME_SECRET }}
+          SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
         run: python python_scripts/kalshi_kxspotifyartistd_drake.py
