@@ -158,8 +158,8 @@ def get_chicago_temps_from_api(api_url, target_date_str_for_filtering):
         # print(f"Processing date: {dt_str}, temp: {temp}") # Debugging line
         if temp is None: continue
         try:
-            # Important: API provides timezone info, so fromisoformat works directly
-            current_dt_obj = datetime.fromisoformat(dt_str)
+            # Parse the datetime string, handling the timezone offset
+            current_dt_obj = datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S%z")
             # Compare just the date part
             current_date_part = current_dt_obj.date()
 
@@ -172,7 +172,7 @@ def get_chicago_temps_from_api(api_url, target_date_str_for_filtering):
                     latest_temp_today = float_temp
                     latest_dt_today = current_dt_obj
         except (ValueError, TypeError) as e:
-             print(f"Skipping invalid date/temp entry: {dt_str}, {temp} - Error: {e}")
+            print(f"Skipping invalid date/temp entry: {dt_str}, {temp} - Error: {e}")
             # continue
 
     if not temps_today:
@@ -274,7 +274,8 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
         ticker_parts = ticker.split('-')
         if len(ticker_parts) < 3: continue
         ticker_date_str = ticker_parts[1]
-        if ticker_date_str != target_date_ticker_format:
+        print(f"  - Ticker Date: {ticker_date_str}, Target Date: {target_date_ticker_format}") # Debugging lin
+        if datetime.strptime(ticker_date_str, '%y%b%d').strftime('%d%b%y').upper() != target_date_ticker_format:
             continue
 
         # Market is for the correct category and date, now check conditions
@@ -287,6 +288,7 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
         # 3. Check Subtitle Condition against Max Temp
         condition_type, thresholds = parse_subtitle_condition(subtitle)
 
+        print(f"  - Parsed Subtitle Condition: {condition_type}, Threshold(s): {thresholds}") # Debugging line
         if condition_type:
             market_matches_temp = check_temp_condition(int_max_temp, condition_type, thresholds)
             # print(f"  - Condition Type: {condition_type}, Threshold(s): {thresholds}") # Reduce noise
