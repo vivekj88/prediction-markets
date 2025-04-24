@@ -162,6 +162,7 @@ def get_chicago_temps_from_api(api_url, target_date_str_for_filtering):
             # Compare just the date part
             current_date_part = current_dt_obj.date()
 
+            print(f"Current date part: {current_date_part}, Target date: {target_dt_obj}") # Debugging line
             if current_date_part == target_dt_obj:
                 float_temp = float(temp)
                 temps_today.append(float_temp)
