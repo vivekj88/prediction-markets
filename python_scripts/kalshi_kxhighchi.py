@@ -172,8 +172,8 @@ def get_chicago_temps_from_api(api_url, target_date_str_for_filtering):
                     latest_temp_today = float_temp
                     latest_dt_today = current_dt_obj
         except (ValueError, TypeError) as e:
-             # print(f"Skipping invalid date/temp entry: {dt_str}, {temp} - Error: {e}")
-            continue
+             print(f"Skipping invalid date/temp entry: {dt_str}, {temp} - Error: {e}")
+            # continue
 
     if not temps_today:
         print(f"No temperature data found for {target_date_str_for_filtering} in the fetched API data.")
