@@ -142,6 +142,7 @@ def get_chicago_temps_from_api(api_url, target_date_str_for_filtering):
 
     observations = data.get("STATION", [])[0].get("OBSERVATIONS", {})
     dates = observations.get("date_time", [])
+    print(f"Dates: {dates}") # Debugging line
     air_temps = observations.get("air_temp_set_1", [])
 
     if not dates or not air_temps:
