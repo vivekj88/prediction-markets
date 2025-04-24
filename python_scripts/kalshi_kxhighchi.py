@@ -154,6 +154,7 @@ def get_chicago_temps_from_api(api_url, target_date_str_for_filtering):
     latest_dt_today = None
 
     for dt_str, temp in zip(dates, air_temps):
+        print(f"Processing date: {dt_str}, temp: {temp}") # Debugging line
         if temp is None: continue
         try:
             # Important: API provides timezone info, so fromisoformat works directly
