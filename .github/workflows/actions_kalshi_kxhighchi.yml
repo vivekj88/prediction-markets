@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TZ: 'America/Chicago' 
     steps:
 
       - name: checkout repo content
