@@ -30,7 +30,7 @@ KALSHI_FILE_PATH = "kalshi_markets.json"
 # --- Dynamically determine target date ---
 current_date = datetime.now().date()
 TARGET_DATE_TEMP_API_STR = current_date.strftime("%Y-%m-%d")
-TARGET_DATE_TICKER_STR = current_date.strftime("%d%b%y").upper() # Corrected format DDMMMYY
+TARGET_DATE_TICKER_STR = current_date.strftime("%y%b%d").upper()
 
 TEMP_API_URL = "https://api.mesowest.net/v2/stations/timeseries?STID=KATT&showemptystations=1&units=temp|F,speed|kts,english&recent=4320&token=d8c6aee36a994f90857925cea26934be&complete=1&obtimezone=local"
 
@@ -294,7 +294,7 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
 
     for market in markets:
         ticker = market.get("ticker", "")
-        subtitle = market.get("subtitle")
+        subtitle = market.get("yes_sub_title")
         yes_ask = market.get("yes_ask")
         no_ask = market.get("no_ask")
 

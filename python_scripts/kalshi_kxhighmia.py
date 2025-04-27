@@ -32,8 +32,7 @@ current_date = datetime.now().date()
 TARGET_DATE_TEMP_API_STR = current_date.strftime("%Y-%m-%d")
 TARGET_DATE_TICKER_STR = current_date.strftime("%y%b%d").upper()
 
-# API Endpoint for Chicago Temps (KMDW station) - Fetches last 72 hours
-TEMP_API_URL = "https://api.mesowest.net/v2/stations/timeseries?STID=KMDW&showemptystations=1&units=temp%7CF,speed%7Cmph,english&recent=4320&token=d8c6aee36a994f90857925cea26934be&complete=1&obtimezone=local"
+TEMP_API_URL = "https://api.mesowest.net/v2/stations/timeseries?STID=KMIA&showemptystations=1&units=temp|F,speed|kts,english&recent=4320&token=d8c6aee36a994f90857925cea26934be&complete=1&obtimezone=local"
 
 # --- Kalshi Data Fetch Function ---
 def pull_kalshi_data():
@@ -133,7 +132,7 @@ def nws_round(temp_f):
 
 # --- Temperature and Market Logic ---
 
-def get_chicago_temps_from_api(api_url, target_date_str_for_filtering):
+def get_temps_from_api(api_url, target_date_str_for_filtering):
     """
     Fetches temperature data from the Mesowest API and extracts temps for the target date.
     Returns the max temp (float), latest temp (float), and if the max temp might have been reached.
@@ -299,7 +298,7 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
         yes_ask = market.get("yes_ask")
         no_ask = market.get("no_ask")
 
-        if not ticker.startswith("KXHIGHCHI"): continue
+        if not ticker.startswith("KXHIGHMIA"): continue
         ticker_parts = ticker.split('-')
         if len(ticker_parts) < 3: continue
         ticker_date_str = ticker_parts[1]
@@ -354,7 +353,7 @@ if __name__ == "__main__":
         print("WARNING: SENDER_PASSWORD environment variable not set. Email sending will likely fail.")
 
     # 1. Get Temperature Info from API for the current date
-    max_temp, latest_temp, high_reached = get_chicago_temps_from_api(TEMP_API_URL, TARGET_DATE_TEMP_API_STR)
+    max_temp, latest_temp, high_reached = get_temps_from_api(TEMP_API_URL, TARGET_DATE_TEMP_API_STR)
 
     # 2. Check if high temp potentially reached
     if max_temp is None:
@@ -375,8 +374,8 @@ if __name__ == "__main__":
 
             # 5. Send email if any conditions met
             if alert_list:
-                subject = f"Kalshi Alert: Chicago High Temp Market(s) Resolved for {TARGET_DATE_TICKER_STR}"
-                body_intro = (f"The highest temperature in Chicago for {TARGET_DATE_TEMP_API_STR} appears to have been reached "
+                subject = f"Kalshi Alert: Miami High Temp Market(s) Resolved for {TARGET_DATE_TICKER_STR}"
+                body_intro = (f"The highest temperature in Miami for {TARGET_DATE_TEMP_API_STR} appears to have been reached "
                               f"at {max_temp:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F). Latest reading was {latest_temp}°F.\n\n" # Include original and rounded
                               f"This NWS rounded max temp resolves the following market(s) with ask prices between 0 and 95:\n")
                 body_markets = ""
