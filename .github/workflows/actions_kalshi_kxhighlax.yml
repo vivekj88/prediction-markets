@@ -2,7 +2,7 @@ name: run kalshi_kxhighlax.py
 
 on:
   schedule:
-    - cron: '0,30 * * * *'
+    - cron: '*/5 16-18 * * *'
   workflow_dispatch:
 
 jobs:
