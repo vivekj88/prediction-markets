@@ -47,6 +47,7 @@ print(f"Targeting Kalshi tickers containing date: {TARGET_DATE_TICKER_STR} (Form
 
 # API Endpoint Configuration
 STATION_ID = "KDEN"
+STATION_USUAL_TIME = "4-5 PM CT"
 MESOWEST_TOKEN = "d8c6aee36a994f90857925cea26934be"
 TEMP_API_URL = f"https://api.mesowest.net/v2/stations/timeseries?STID={STATION_ID}&showemptystations=1&units=temp%7CF,speed%7Cmph,english&recent=4320&token={MESOWEST_TOKEN}&complete=1&obtimezone=local"
 
@@ -321,7 +322,7 @@ if __name__ == "__main__":
             alert_list = check_kalshi_markets(KALSHI_FILE_PATH, max_temp, TARGET_DATE_TICKER_STR)
 
             if alert_list:
-                subject = f"Kalshi Alert: High Temp {STATION_ID} Market(s) Resolved NO for {TARGET_DATE_TICKER_STR}"
+                subject = f"Kalshi Alert: High Temp {STATION_ID} {STATION_USUAL_TIME} Market(s) Resolved NO for {TARGET_DATE_TICKER_STR}"
                 body_intro = (f"The highest temperature reported for {STATION_ID} on {TARGET_DATE_TEMP_API_STR} appears to have been reached "
                               f"at {max_temp:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F). Latest reading was {latest_temp}°F.\n\n"
                               f"This NWS rounded max temp resolves the following market(s) outside the range "
