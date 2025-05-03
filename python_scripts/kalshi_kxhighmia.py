@@ -45,7 +45,6 @@ TARGET_DATE_TICKER_STR = target_date_obj.strftime("%y%b%d").upper() # User speci
 print(f"Determined Target Date (based on UTC -> Fixed {TARGET_TIMEZONE_ABBR} offset UTC{TARGET_STANDARD_OFFSET_HOURS:+d}): {TARGET_DATE_TEMP_API_STR}")
 print(f"Targeting Kalshi tickers containing date: {TARGET_DATE_TICKER_STR} (Format: YYMONDD)")
 
-
 # API Endpoint Configuration
 STATION_ID = "KMIA"
 MESOWEST_TOKEN = "d8c6aee36a994f90857925cea26934be"
@@ -75,7 +74,7 @@ def pull_kalshi_data():
             cursor = data.get("cursor")
             if not cursor: break
         else:
-             print(f"Warning: Reached max API calls ({max_calls}).")
+            print(f"Warning: Reached max API calls ({max_calls}).")
 
         with open(KALSHI_FILE_PATH, "w", encoding="utf-8") as file:
             json.dump({"markets": kalshi_markets}, file, indent=4)
@@ -88,10 +87,10 @@ def pull_kalshi_data():
 # --- Email Sending Function ---
 def send_email(subject, body):
     if SENDER_PASSWORD == "Secret not available!":
-         print("!!! Email configuration missing (SENDER_PASSWORD environment variable not set). Email not sent.")
-         print(f"Subject: {subject}")
-         print(f"Body: {body}")
-         return
+        print("!!! Email configuration missing (SENDER_PASSWORD environment variable not set). Email not sent.")
+        print(f"Subject: {subject}")
+        print(f"Body: {body}")
+        return
 
     msg = MIMEText(body)
     msg['Subject'] = subject
@@ -123,7 +122,7 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
     """
     Fetches temperature data from the Mesowest API.
     Filters observations for the target_date_str_to_filter.
-    Returns: max_temp (float), latest_temp (float), high_reached (bool), temp_data (list of (datetime, float))
+    Returns: max_temp (float), latest_temp (float), high_reached (bool), temp_data (list of (datetime, float)), station_reported_tz (str)
     """
     print(f"Fetching temperature data from: {api_url}")
     target_dt_obj = datetime.strptime(target_date_str_to_filter, "%Y-%m-%d").date()
@@ -131,12 +130,12 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
         response = requests.get(api_url, timeout=30)
         response.raise_for_status()
         data = response.json()
-    except requests.exceptions.RequestException as e: print(f"Error fetching data from API: {e}"); return None, None, False, []
-    except json.JSONDecodeError: print("Error: Could not decode JSON response from API"); return None, None, False, []
-    except Exception as e: print(f"An unexpected error occurred during API call or parsing: {e}"); return None, None, False, []
+    except requests.exceptions.RequestException as e: print(f"Error fetching data from API: {e}"); return None, None, False, [], None
+    except json.JSONDecodeError: print("Error: Could not decode JSON response from API"); return None, None, False, [], None
+    except Exception as e: print(f"An unexpected error occurred during API call or parsing: {e}"); return None, None, False, [], None
 
     if not data or "STATION" not in data or not data["STATION"] or "OBSERVATIONS" not in data["STATION"][0]:
-        print("Error: Unexpected API response structure."); return None, None, False, []
+        print("Error: Unexpected API response structure."); return None, None, False, [], None
 
     observations = data["STATION"][0].get("OBSERVATIONS", {})
     dates = observations.get("date_time", [])
@@ -144,7 +143,7 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
     station_reported_tz = data["STATION"][0].get("TIMEZONE")
 
     if not dates or not air_temps:
-        print("Error: 'date_time' or 'air_temp_set_1' missing."); return None, None, False, []
+        print("Error: 'date_time' or 'air_temp_set_1' missing."); return None, None, False, [], station_reported_tz
 
     temp_data_list = []
     latest_temp_today = None
@@ -165,7 +164,7 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
 
     if not temp_data_list:
         print(f"No temperature data found for target date {target_date_str_to_filter} in API data for station {STATION_ID} (Station TZ: {station_reported_tz}).")
-        return None, None, False, []
+        return None, None, False, [], station_reported_tz
 
     temp_data_list.sort(key=lambda x: x[0])
     temps_today = [item[1] for item in temp_data_list]
@@ -179,7 +178,6 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
     print(f"Data for target date {target_date_str_to_filter}: Max Temp = {max_temp_today:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F), Latest Temp = {latest_temp_today}°F (at {latest_dt_today})")
     print(f"Has high temp potentially been reached? {'Yes' if high_temp_reached else 'No'}")
 
-    # Add station_reported_tz to the return tuple
     return max_temp_today, latest_temp_today, high_temp_reached, temp_data_list, station_reported_tz
 
 def parse_subtitle_condition(subtitle):
@@ -204,42 +202,11 @@ def parse_subtitle_condition(subtitle):
 
     return None, None
 
-def check_temp_resolves_no(rounded_temp, condition_type, thresholds):
-    """ Checks if the NWS rounded integer temperature meets the condition for a 'No' resolution. """
-    if rounded_temp is None: return False
-    if condition_type == "between":
-        low, high = thresholds
-        return rounded_temp < math.floor(low) or rounded_temp > math.floor(high)
-    elif condition_type == "above":
-        threshold = thresholds
-        if threshold == math.floor(threshold): return rounded_temp <= threshold
-        else: return rounded_temp < math.ceil(threshold)
-    elif condition_type == "below":
-        threshold = thresholds
-        return rounded_temp > math.floor(threshold)
-    return False
-
-def check_condition_is_lower(rounded_temp, condition_type, thresholds):
-    """ Checks if the market condition represents temps entirely below the rounded_temp. """
-    if rounded_temp is None: return False
-    if condition_type == "between":
-        _, high = thresholds
-        # If the highest temp in the range is below the current max temp
-        return math.floor(high) < rounded_temp
-    elif condition_type == "above":
-        # An "above" threshold condition can never be entirely lower
-        return False
-    elif condition_type == "below":
-        threshold = thresholds
-        # If the threshold itself is below the current max temp
-        return math.floor(threshold) < rounded_temp
-    return False
-
 def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_format):
     """
-    Loads Kalshi markets for the target date, checks if NWS rounded max temp
-    resolves the market to NO AND the market condition is lower than the max temp,
-    checks no_ask price. Returns a list of (ticker, no_ask, "No") tuples.
+    Loads Kalshi markets for the target date, checks if markets resolve to 'No' based on NWS rounded max temp
+    with an error threshold of ±2°F, and verifies no_ask prices are between 0 and 95.
+    Returns a list of (ticker, no_ask, 'No') tuples for markets that resolve to 'No' and are outside the temp range.
     """
     if max_temp_today is None or target_date_ticker_format is None:
         print("Error: Cannot check Kalshi markets without valid max temp or target date format.")
@@ -255,14 +222,17 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
 
     alert_candidates = []
     nws_rounded_temp = nws_round(max_temp_today)
-    print(f"\nChecking Kalshi markets for date {target_date_ticker_format} for 'No' resolution (condition < {nws_rounded_temp}°F)")
+    error_threshold = 2  # ±2°F
+    temp_range_lower = nws_rounded_temp - error_threshold
+    temp_range_upper = nws_rounded_temp + error_threshold
+    print(f"\nChecking Kalshi markets for date {target_date_ticker_format} for 'No' resolution (outside range {temp_range_lower}°F to {temp_range_upper}°F)")
 
     for market in markets:
         ticker = market.get("ticker", "")
         subtitle = market.get("yes_sub_title")
         no_ask = market.get("no_ask")
 
-        if not ticker.startswith("KXHIGHMIA"): continue # Adapt if needed
+        if not ticker.startswith("KXHIGHMIA"): continue
         ticker_parts = ticker.split('-')
         if len(ticker_parts) < 3: continue
         ticker_date_str = ticker_parts[1]
@@ -276,30 +246,53 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
 
         print(f"  - yes_sub_title Condition: {condition_type}, Threshold(s): {thresholds}")
 
-        resolves_no = check_temp_resolves_no(nws_rounded_temp, condition_type, thresholds)
-        if resolves_no:
-            print(f"  - NWS Rounded Temp ({nws_rounded_temp}°F) meets 'No' condition.")
-            # NEW CHECK: Only proceed if the condition itself is lower than the achieved temp
-            condition_lower = check_condition_is_lower(nws_rounded_temp, condition_type, thresholds)
-            if condition_lower:
-                print(f"  - Market condition ({condition_type} {thresholds}) is LOWER than max temp ({nws_rounded_temp}).")
+        # Determine if the market condition is entirely outside the temp range
+        is_outside_range = False
+        if condition_type == "between":
+            low, high = thresholds
+            if high < temp_range_lower or low > temp_range_upper:
+                is_outside_range = True
+        elif condition_type == "above":
+            threshold = thresholds
+            if threshold > temp_range_upper:
+                is_outside_range = True
+        elif condition_type == "below":
+            threshold = thresholds
+            if threshold < temp_range_lower:
+                is_outside_range = True
+
+        if is_outside_range:
+            print(f"  - Market condition ({condition_type} {thresholds}) is outside temp range ({temp_range_lower}°F to {temp_range_upper}°F).")
+            # Check if the market resolves to 'No' based on NWS rounded temp
+            resolves_no = False
+            if condition_type == "between":
+                low, high = thresholds
+                resolves_no = nws_rounded_temp < math.floor(low) or nws_rounded_temp > math.floor(high)
+            elif condition_type == "above":
+                threshold = thresholds
+                resolves_no = nws_rounded_temp < math.ceil(threshold)
+            elif condition_type == "below":
+                threshold = thresholds
+                resolves_no = nws_rounded_temp > math.floor(threshold)
+
+            if resolves_no:
+                print(f"  - NWS Rounded Temp ({nws_rounded_temp}°F) resolves market to 'No'.")
                 if isinstance(no_ask, (int, float)) and 0 < no_ask < 95:
                     print(f"  - No Ask ({no_ask}) is within range (0-95). Adding 'No' alert.")
                     alert_candidates.append((ticker, no_ask, "No"))
                 else:
                     print(f"  - No Ask ({no_ask}) is NOT within range (0-95).")
             else:
-                print(f"  - Market condition ({condition_type} {thresholds}) is NOT entirely lower than max temp ({nws_rounded_temp}). Skipping No alert.")
-        # else: # Optionally log why it didn't resolve to No
-        #     print(f"  - NWS Rounded Temp ({nws_rounded_temp}°F) does NOT meet 'No' condition.")
+                print(f"  - NWS Rounded Temp ({nws_rounded_temp}°F) does NOT resolve market to 'No'.")
+        else:
+            print(f"  - Market condition ({condition_type} {thresholds}) is NOT outside temp range ({temp_range_lower}°F to {temp_range_upper}°F).")
 
     if not alert_candidates:
-        print(f"\nNo Kalshi markets found resolving to 'No' (with condition lower than {nws_rounded_temp}°F) and valid no_ask for date {target_date_ticker_format}.")
+        print(f"\nNo Kalshi markets found resolving to 'No' (outside range {temp_range_lower}°F to {temp_range_upper}°F) with valid no_ask for date {target_date_ticker_format}.")
     else:
-        print(f"\nFound {len(alert_candidates)} market alert(s) based on 'No' resolution (condition lower than max temp) and price.")
+        print(f"\nFound {len(alert_candidates)} market alert(s) based on 'No' resolution and price.")
 
     return alert_candidates
-
 
 # --- Main Execution ---
 if __name__ == "__main__":
@@ -309,50 +302,48 @@ if __name__ == "__main__":
         print("WARNING: SENDER_PASSWORD environment variable not set. Email sending will likely fail.")
 
     # 1. Get Temperature Info from API for the calculated target date
-    # Returns: max_temp (float), latest_temp (float), high_reached (bool), temp_data (list), station_tz (str)
     max_temp, latest_temp, high_temp_reached, temp_data_list, station_reported_tz = get_station_temps_from_api(TEMP_API_URL, TARGET_DATE_TEMP_API_STR)
 
     # 2. Check if high temp potentially reached
     if max_temp is None:
-         print("Could not retrieve or process temperature data. Exiting.")
+        print("Could not retrieve or process temperature data. Exiting.")
     elif not high_temp_reached:
         print("Highest temperature for the day may not have been reached yet (or latest reading is max). No alert needed based on resolved contracts.")
     else:
-        # High temp is reached, now check if this resolves any contracts to NO where condition < max_temp
+        # High temp is reached, now check if this resolves any contracts to NO
         nws_rounded_max_temp = nws_round(max_temp)
-        print(f"Highest temp ({nws_rounded_max_temp}°F NWS Rounded) appears reached. Checking contracts resolving to 'No' (where condition < max temp)...")
+        print(f"Highest temp ({nws_rounded_max_temp}°F NWS Rounded) appears reached. Checking contracts resolving to 'No'...")
 
         if not pull_kalshi_data(): # Fetch latest markets
             print("Failed to fetch Kalshi market data. Cannot proceed with market check.")
         else:
-            # Find Kalshi markets resolving to NO (condition lower than max temp) and check price
+            # Find Kalshi markets resolving to NO and check price
             alert_list = check_kalshi_markets(KALSHI_FILE_PATH, max_temp, TARGET_DATE_TICKER_STR)
 
             if alert_list:
-                subject = f"Kalshi Alert: Low Temp Chicago Market(s) Resolved NO for {TARGET_DATE_TICKER_STR}" # Changed subject slightly
+                subject = f"Kalshi Alert: High Temp {STATION_ID} Market(s) Resolved NO for {TARGET_DATE_TICKER_STR}"
                 body_intro = (f"The highest temperature reported for {STATION_ID} on {TARGET_DATE_TEMP_API_STR} appears to have been reached "
                               f"at {max_temp:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F). Latest reading was {latest_temp}°F.\n\n"
-                              f"This NWS rounded max temp resolves the following *lower temperature* market(s) for {TARGET_DATE_TICKER_STR} to 'No' "
+                              f"This NWS rounded max temp resolves the following market(s) outside the range "
+                              f"{nws_rounded_max_temp - 2}°F to {nws_rounded_max_temp + 2}°F to 'No' "
                               "with no_ask prices between 0 and 95:\n")
                 body_markets = ""
                 for ticker, price, resolution in alert_list:
-                     body_markets += f"- {ticker}: Resolved to '{resolution}', no_ask = {price}\n"
+                    body_markets += f"- {ticker}: Resolved to '{resolution}', no_ask = {price}\n"
 
                 # Prepare temperature log for email body
                 body_temp_log = f"\n\nTemperature Log for {TARGET_DATE_TEMP_API_STR} (Timezone: {station_reported_tz or 'N/A'}):\n"
                 body_temp_log += "------------------------------------\n"
                 if temp_data_list:
                     for dt_obj, temp_val in temp_data_list:
-                         # Format time including offset from the API data
-                         time_str = dt_obj.strftime("%H:%M:%S %z")
-                         highlight = " *** MAX ***" if temp_val == max_temp else ""
-                         body_temp_log += f"{time_str}: {temp_val:.2f}°F{highlight}\n"
+                        time_str = dt_obj.strftime("%H:%M:%S %z")
+                        highlight = " *** MAX ***" if temp_val == max_temp else ""
+                        body_temp_log += f"{time_str}: {temp_val:.2f}°F{highlight}\n"
                 else:
                     body_temp_log += "No temperature data available for this date.\n"
                 body_temp_log += "------------------------------------\n"
 
                 # Combine parts and send email
                 send_email(subject, body_intro + body_markets + body_temp_log)
-            # else: Message already printed by check_kalshi_markets
 
     print("\n--- Check complete. ---")
