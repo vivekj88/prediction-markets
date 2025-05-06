@@ -304,8 +304,8 @@ if __name__ == "__main__":
     # 2. Check if high temp potentially reached
     if max_temp is None:
         print("Could not retrieve or process temperature data. Exiting.")
-    elif not high_temp_reached:
-        print("Highest temperature for the day may not have been reached yet (or latest reading is max). No alert needed based on resolved contracts.")
+    # elif not high_temp_reached:
+    #     print("Highest temperature for the day may not have been reached yet (or latest reading is max). No alert needed based on resolved contracts.")
     else:
         # High temp is reached, now check if this resolves any contracts to NO
         nws_rounded_max_temp = nws_round(max_temp)
