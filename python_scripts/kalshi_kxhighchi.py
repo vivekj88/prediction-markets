@@ -205,9 +205,9 @@ def parse_subtitle_condition(subtitle):
 
 def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_format):
     """
-    Loads Kalshi markets for the target date, checks if markets resolve to 'No' based on NWS rounded max temp
-    with an error threshold of ±2°F, and verifies no_ask prices are between 0 and 95.
-    Returns a list of (ticker, no_ask, 'No') tuples for markets that resolve to 'No' and are outside the temp range.
+    Loads Kalshi markets for the target date, checks if markets entirely below the lower bound
+    of the NWS rounded max temp ±2°F resolve to 'No', and verifies no_ask prices are between 0 and 95.
+    Returns a list of (ticker, no_ask, 'No') tuples for qualifying markets.
     """
     if max_temp_today is None or target_date_ticker_format is None:
         print("Error: Cannot check Kalshi markets without valid max temp or target date format.")
@@ -226,7 +226,7 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
     error_threshold = 2  # ±2°F
     temp_range_lower = nws_rounded_temp - error_threshold
     temp_range_upper = nws_rounded_temp + error_threshold
-    print(f"\nChecking Kalshi markets for date {target_date_ticker_format} for 'No' resolution (outside range {temp_range_lower}°F to {temp_range_upper}°F)")
+    print(f"\nChecking Kalshi markets for date {target_date_ticker_format} for 'No' resolution (markets entirely below {temp_range_lower}°F)")
 
     for market in markets:
         ticker = market.get("ticker", "")
@@ -247,31 +247,27 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
 
         print(f"  - yes_sub_title Condition: {condition_type}, Threshold(s): {thresholds}")
 
-        # Determine if the market condition is entirely outside the temp range
-        is_outside_range = False
+        # Check if the market condition is entirely below the temp range lower bound
+        is_below_range = False
         if condition_type == "between":
             low, high = thresholds
-            if high < temp_range_lower or low > temp_range_upper:
-                is_outside_range = True
-        elif condition_type == "above":
-            threshold = thresholds
-            if threshold > temp_range_upper:
-                is_outside_range = True
+            if high < temp_range_lower:
+                is_below_range = True
         elif condition_type == "below":
             threshold = thresholds
             if threshold < temp_range_lower:
-                is_outside_range = True
+                is_below_range = True
+        elif condition_type == "above":
+            # "Above" markets cannot be entirely below the range
+            is_below_range = False
 
-        if is_outside_range:
-            print(f"  - Market condition ({condition_type} {thresholds}) is outside temp range ({temp_range_lower}°F to {temp_range_upper}°F).")
+        if is_below_range:
+            print(f"  - Market condition ({condition_type} {thresholds}) is entirely below temp range lower bound ({temp_range_lower}°F).")
             # Check if the market resolves to 'No' based on NWS rounded temp
             resolves_no = False
             if condition_type == "between":
                 low, high = thresholds
                 resolves_no = nws_rounded_temp < math.floor(low) or nws_rounded_temp > math.floor(high)
-            elif condition_type == "above":
-                threshold = thresholds
-                resolves_no = nws_rounded_temp < math.ceil(threshold)
             elif condition_type == "below":
                 threshold = thresholds
                 resolves_no = nws_rounded_temp > math.floor(threshold)
@@ -286,10 +282,10 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
             else:
                 print(f"  - NWS Rounded Temp ({nws_rounded_temp}°F) does NOT resolve market to 'No'.")
         else:
-            print(f"  - Market condition ({condition_type} {thresholds}) is NOT outside temp range ({temp_range_lower}°F to {temp_range_upper}°F).")
+            print(f"  - Market condition ({condition_type} {thresholds}) is NOT entirely below temp range lower bound ({temp_range_lower}°F).")
 
     if not alert_candidates:
-        print(f"\nNo Kalshi markets found resolving to 'No' (outside range {temp_range_lower}°F to {temp_range_upper}°F) with valid no_ask for date {target_date_ticker_format}.")
+        print(f"\nNo Kalshi markets found resolving to 'No' (entirely below {temp_range_lower}°F) with valid no_ask for date {target_date_ticker_format}.")
     else:
         print(f"\nFound {len(alert_candidates)} market alert(s) based on 'No' resolution and price.")
 
@@ -323,11 +319,10 @@ if __name__ == "__main__":
 
             if alert_list:
                 subject = f"Kalshi Alert: High Temp {STATION_ID} {STATION_USUAL_TIME} Market(s) Resolved NO for {TARGET_DATE_TICKER_STR}"
-                body_intro = (f"The highest temperature reported for {STATION_ID} on {TARGET_DATE_TEMP_API_STR} appears to have been reached "
+                body_intro = (f"The highest temperature reported for {STATION_ID} on {TARGET_DATE_TEMP_API_STR} appears36 to have been reached "
                               f"at {max_temp:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F). Latest reading was {latest_temp}°F.\n\n"
-                              f"This NWS rounded max temp resolves the following market(s) outside the range "
-                              f"{nws_rounded_max_temp - 2}°F to {nws_rounded_max_temp + 2}°F to 'No' "
-                              "with no_ask prices between 0 and 95:\n")
+                              f"This NWS rounded max temp resolves the following market(s) entirely below "
+                              f"{nws_rounded_max_temp - 2}°F to 'No' with no_ask prices between 0 and 95, indicating potential opportunities to buy 'No' contracts:\n")
                 body_markets = ""
                 for ticker, price, resolution in alert_list:
                     body_markets += f"- {ticker}: Resolved to '{resolution}', no_ask = {price}\n"
