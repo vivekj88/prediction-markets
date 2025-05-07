@@ -223,7 +223,7 @@ def check_kalshi_markets(kalshi_file_path, max_temp_today, target_date_ticker_fo
 
     alert_candidates = []
     nws_rounded_temp = nws_round(max_temp_today)
-    error_threshold = 2  # ±2°F
+    error_threshold = 1  # ±2°F
     temp_range_lower = nws_rounded_temp - error_threshold
     temp_range_upper = nws_rounded_temp + error_threshold
     print(f"\nChecking Kalshi markets for date {target_date_ticker_format} for 'No' resolution (markets entirely below {temp_range_lower}°F)")
