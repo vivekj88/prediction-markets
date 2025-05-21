@@ -6,7 +6,9 @@ from datetime import datetime, date, timezone, timedelta
 import math
 import requests
 import re
-from decimal import Decimal, ROUND_HALF_UP
+from kalshi_utils import nws_round
+from kalshi_utils import celsius_to_fahrenheit
+from decimal import Decimal
 
 # --- Configuration ---
 SMTP_SERVER = "smtp.gmail.com"
@@ -49,7 +51,7 @@ print(f"Targeting Kalshi tickers containing date: {TARGET_DATE_TICKER_STR} (Form
 STATION_ID = "KPHL"
 STATION_USUAL_TIME = "2-3 PM CT"
 MESOWEST_TOKEN = "d8c6aee36a994f90857925cea26934be"
-TEMP_API_URL = f"https://api.mesowest.net/v2/stations/timeseries?STID={STATION_ID}&showemptystations=1&units=temp%7CF,speed%7Cmph,english&recent=4320&token={MESOWEST_TOKEN}&complete=1&obtimezone=local"
+TEMP_API_URL = f"https://api.mesowest.net/v2/stations/timeseries?STID={STATION_ID}&showemptystations=1&units=temp%7CC,speed%7Cmph,english&recent=4320&token={MESOWEST_TOKEN}&complete=1&obtimezone=local"
 
 # --- Kalshi Data Fetch Function ---
 def pull_kalshi_data():
@@ -106,24 +108,15 @@ def send_email(subject, body):
     except smtplib.SMTPAuthenticationError: print("Error sending email: SMTP Authentication Error."); return
     except Exception as e: print(f"Error sending email: {e}"); return
 
-# --- NWS Rounding Function ---
-def nws_round(temp_f):
-    """ Rounds a temperature according to NWS rules described by user. """
-    if temp_f is None: return None
-    try:
-        if -2.5 <= temp_f <= -2.1: return -2
-        if -3.0 < temp_f <= -2.6: return -3
-        return int(Decimal(str(temp_f)).quantize(Decimal('1'), rounding=ROUND_HALF_UP))
-    except Exception as e:
-        print(f"Error during NWS rounding for {temp_f}: {e}")
-        return math.floor(temp_f)
-
 # --- Temperature and Market Logic ---
 def get_station_temps_from_api(api_url, target_date_str_to_filter):
     """
-    Fetches temperature data from the Mesowest API.
-    Filters observations for the target_date_str_to_filter.
-    Returns: max_temp (float), latest_temp (float), high_reached (bool), temp_data (list of (datetime, float)), station_reported_tz (str)
+    Fetches temperature data from the Mesowest API for the target date.
+    Handles 5-min cadence for max temp (rounded Celsius) by using lowest unrounded value,
+    and non-5-min cadence (unrounded Celsius). Converts temperatures to Fahrenheit for output,
+    applies NWS rounding to max_temp_today.
+    Returns: max_temp_today (°F, float), latest_temp_today (°F, float), high_reached (bool),
+             temp_data_list (list of (datetime, float °F)), station_reported_tz (str)
     """
     print(f"Fetching temperature data from: {api_url}")
     target_dt_obj = datetime.strptime(target_date_str_to_filter, "%Y-%m-%d").date()
@@ -131,12 +124,19 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
         response = requests.get(api_url, timeout=30)
         response.raise_for_status()
         data = response.json()
-    except requests.exceptions.RequestException as e: print(f"Error fetching data from API: {e}"); return None, None, False, [], None
-    except json.JSONDecodeError: print("Error: Could not decode JSON response from API"); return None, None, False, [], None
-    except Exception as e: print(f"An unexpected error occurred during API call or parsing: {e}"); return None, None, False, [], None
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data from API: {e}")
+        return None, None, False, [], None
+    except json.JSONDecodeError:
+        print("Error: Could not decode JSON response from API")
+        return None, None, False, [], None
+    except Exception as e:
+        print(f"An unexpected error occurred during API call or parsing: {e}")
+        return None, None, False, [], None
 
     if not data or "STATION" not in data or not data["STATION"] or "OBSERVATIONS" not in data["STATION"][0]:
-        print("Error: Unexpected API response structure."); return None, None, False, [], None
+        print("Error: Unexpected API response structure.")
+        return None, None, False, [], None
 
     observations = data["STATION"][0].get("OBSERVATIONS", {})
     dates = observations.get("date_time", [])
@@ -144,42 +144,73 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
     station_reported_tz = data["STATION"][0].get("TIMEZONE")
 
     if not dates or not air_temps:
-        print("Error: 'date_time' or 'air_temp_set_1' missing."); return None, None, False, [], station_reported_tz
+        print("Error: 'date_time' or 'air_temp_set_1' missing.")
+        return None, None, False, [], station_reported_tz
 
     temp_data_list = []
-    latest_temp_today = None
+    celsius_temps = []
+    latest_temp_celsius = None
     latest_dt_today = None
+    max_temp_celsius = None
+    max_temp_dt = None
 
     for dt_str, temp in zip(dates, air_temps):
-        if temp is None: continue
+        if temp is None:
+            continue
         try:
             current_dt_obj = datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S%z")
             current_date_part = current_dt_obj.date()
             if current_date_part == target_dt_obj:
-                float_temp = float(temp)
-                temp_data_list.append((current_dt_obj, float_temp))
+                float_temp_celsius = float(temp)
+                celsius_temps.append(float_temp_celsius)
+                temp_data_list.append((current_dt_obj, celsius_to_fahrenheit(float_temp_celsius)))
+                # Track latest temperature
                 if latest_dt_today is None or current_dt_obj > latest_dt_today:
-                    latest_temp_today = float_temp
+                    latest_temp_celsius = float_temp_celsius
                     latest_dt_today = current_dt_obj
-        except (ValueError, TypeError) as e: continue
+                # Track max temperature and its timestamp
+                if max_temp_celsius is None or float_temp_celsius > max_temp_celsius:
+                    max_temp_celsius = float_temp_celsius
+                    max_temp_dt = current_dt_obj
+        except (ValueError, TypeError):
+            continue
 
     if not temp_data_list:
-        print(f"No temperature data found for target date {target_date_str_to_filter} in API data for station {STATION_ID} (Station TZ: {station_reported_tz}).")
+        print(f"No temperature data found for target date {target_date_str_to_filter} in API data (Station TZ: {station_reported_tz}).")
         return None, None, False, [], station_reported_tz
 
     temp_data_list.sort(key=lambda x: x[0])
-    temps_today = [item[1] for item in temp_data_list]
-    max_temp_today = max(temps_today)
-    latest_temp_today = temp_data_list[-1][1] if temp_data_list else None
-    latest_dt_today = temp_data_list[-1][0] if temp_data_list else None
 
-    high_temp_reached = (latest_temp_today is not None) and (latest_temp_today < max_temp_today)
+    # Check if max_temp_celsius's timestamp is on 5-minute cadence
+    is_max_on_5min_cadence = max_temp_dt.minute % 5 == 0 if max_temp_dt else False
+
+    # Adjust max_temp_celsius for lowest unrounded value if on 5-min cadence
+    if is_max_on_5min_cadence:
+        max_temp_decimal = Decimal(str(max_temp_celsius))
+        integer_part = int(max_temp_decimal)
+        fractional_part = abs(max_temp_decimal - integer_part)
+        if fractional_part == Decimal('0.0'):
+            max_temp_celsius = float(max_temp_decimal - Decimal('0.5'))  # e.g., 32°C → 31.5°C
+        elif fractional_part == Decimal('0.5') and max_temp_celsius < 0:
+            max_temp_celsius = float(max_temp_decimal - Decimal('0.5'))  # e.g., -3.5°C → -4.0°C
+        elif fractional_part == Decimal('0.5') and max_temp_celsius >= 0:
+            max_temp_celsius = float(max_temp_decimal)  # e.g., 3.5°C → 3.5°C (already lowest)
+
+    # Convert max_temp and latest_temp to Fahrenheit
+    max_temp_today = celsius_to_fahrenheit(max_temp_celsius)
+    latest_temp_today = celsius_to_fahrenheit(latest_temp_celsius) if latest_temp_celsius is not None else None
+
+    # Round max_temp_today using NWS rules
     nws_rounded_max_temp = nws_round(max_temp_today)
 
-    print(f"Data for target date {target_date_str_to_filter}: Max Temp = {max_temp_today:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F), Latest Temp = {latest_temp_today}°F (at {latest_dt_today})")
+    high_temp_reached = (latest_temp_today is not None) and (latest_temp_today < max_temp_today)
+
+    print(f"Data for target date {target_date_str_to_filter}: Max Temp = {max_temp_today:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F), Latest Temp = {latest_temp_today:.2f}°F (at {latest_dt_today})")
     print(f"Has high temp potentially been reached? {'Yes' if high_temp_reached else 'No'}")
 
+    print(f"max_temp_dt: {max_temp_dt})")
     return max_temp_today, latest_temp_today, high_temp_reached, temp_data_list, station_reported_tz
+
 
 def parse_subtitle_condition(subtitle):
     """ Parses the subtitle string to determine the temperature condition. """
