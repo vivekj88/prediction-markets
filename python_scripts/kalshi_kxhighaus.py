@@ -48,7 +48,7 @@ print(f"Determined Target Date (based on UTC -> Fixed {TARGET_TIMEZONE_ABBR} off
 print(f"Targeting Kalshi tickers containing date: {TARGET_DATE_TICKER_STR} (Format: YYMONDD)")
 
 # API Endpoint Configuration
-STATION_ID = "KATT"
+STATION_ID = "KAUS"
 STATION_USUAL_TIME = "4-6 PM CT"
 MESOWEST_TOKEN = "d8c6aee36a994f90857925cea26934be"
 TEMP_API_URL = f"https://api.mesowest.net/v2/stations/timeseries?STID={STATION_ID}&showemptystations=1&units=temp%7CC,speed%7Cmph,english&recent=4320&token={MESOWEST_TOKEN}&complete=1&obtimezone=local"
