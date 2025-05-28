@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '0,15,30,45 * * * *'
   workflow_dispatch:
+  repository_dispatch:
+    types: [prediction-markets]
 
 jobs:
   build:
