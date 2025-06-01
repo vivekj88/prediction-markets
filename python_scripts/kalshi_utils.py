@@ -41,7 +41,8 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
     handles non-5-min cadence (unrounded Celsius). Converts temperatures to Fahrenheit for output,
     applies NWS rounding to max_temp_today.
     Returns: max_temp_today (°F, float), latest_temp_today (°F, float), high_reached (bool),
-             temp_data_list (list of (datetime, float °F)), station_reported_tz (str)
+             temp_data_list (list of (datetime, float °F)), station_reported_tz (str),
+             max_temp_on_5min_cadence (bool)
     """
     print(f"Fetching temperature data from: {api_url}")
     target_dt_obj = datetime.strptime(target_date_str_to_filter, "%Y-%m-%d").date()
@@ -51,17 +52,17 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
         data = response.json()
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from API: {e}")
-        return None, None, False, [], None
+        return None, None, False, [], None, False
     except json.JSONDecodeError:
         print("Error: Could not decode JSON response from API")
-        return None, None, False, [], None
+        return None, None, False, [], None, False
     except Exception as e:
         print(f"An unexpected error occurred during API call or parsing: {e}")
-        return None, None, False, [], None
+        return None, None, False, [], None, False
 
     if not data or "STATION" not in data or not data["STATION"] or "OBSERVATIONS" not in data["STATION"][0]:
         print("Error: Unexpected API response structure.")
-        return None, None, False, [], None
+        return None, None, False, [], None, False
 
     observations = data["STATION"][0].get("OBSERVATIONS", {})
     dates = observations.get("date_time", [])
@@ -70,10 +71,11 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
 
     if not dates or not air_temps:
         print("Error: 'date_time' or 'air_temp_set_1' missing.")
-        return None, None, False, [], station_reported_tz
+        return None, None, False, [], station_reported_tz, False
 
     temp_data_list = []
     celsius_temps = []
+    temp_cadence_info = []  # Store (temp, is_5min_cadence, datetime) tuples
     latest_temp_celsius = None
     latest_dt_today = None
 
@@ -87,19 +89,11 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
                 float_temp_celsius = float(temp)
                 # Check if timestamp is on 5-minute cadence
                 is_5min_cadence = current_dt_obj.minute % 5 == 0
-                # Adjust temperature if on 5-minute cadence
-                if is_5min_cadence:
-                    temp_decimal = Decimal(str(float_temp_celsius))
-                    integer_part = int(temp_decimal)
-                    fractional_part = abs(temp_decimal - integer_part)
-                    if fractional_part == Decimal('0.0'):
-                        float_temp_celsius = float(temp_decimal - Decimal('0.5'))  # e.g., 32°C → 31.5°C
-                    elif fractional_part == Decimal('0.5') and float_temp_celsius < 0:
-                        float_temp_celsius = float(temp_decimal - Decimal('0.5'))  # e.g., -3.5°C → -4.0°C
-                    elif fractional_part == Decimal('0.5') and float_temp_celsius >= 0:
-                        float_temp_celsius = float(temp_decimal)  # e.g., 3.5°C → 3.5°C (already lowest)
-                # Store adjusted or original Celsius temperature
+                
+                # Store adjusted or original Celsius temperature with cadence info
                 celsius_temps.append(float_temp_celsius)
+                temp_cadence_info.append((float_temp_celsius, is_5min_cadence, current_dt_obj))
+                
                 # Convert to Fahrenheit for temp_data_list
                 temp_data_list.append((current_dt_obj, celsius_to_fahrenheit(float_temp_celsius)))
                 # Track latest temperature
@@ -111,14 +105,21 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
 
     if not temp_data_list:
         print(f"No temperature data found for target date {target_date_str_to_filter} in API data (Station TZ: {station_reported_tz}).")
-        return None, None, False, [], station_reported_tz
+        return None, None, False, [], station_reported_tz, False
 
     temp_data_list.sort(key=lambda x: x[0])
     if not celsius_temps:
         print("No valid Celsius temperatures found.")
-        return None, None, False, [], station_reported_tz
+        return None, None, False, [], station_reported_tz, False
 
     max_temp_celsius = max(celsius_temps)
+    
+    # Find if the max temperature occurred on a 5-minute cadence
+    max_temp_on_5min_cadence = False
+    for temp, is_5min, dt_obj in temp_cadence_info:
+        if temp == max_temp_celsius:
+            max_temp_on_5min_cadence = is_5min
+            break  # Use the first occurrence of max temp
 
     # Convert max_temp and latest_temp to Fahrenheit
     max_temp_today = celsius_to_fahrenheit(max_temp_celsius)
@@ -129,7 +130,8 @@ def get_station_temps_from_api(api_url, target_date_str_to_filter):
 
     high_temp_reached = (latest_temp_today is not None) and (latest_temp_today < max_temp_today)
 
-    print(f"Data for target date {target_date_str_to_filter}: Max Temp = {max_temp_today:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F), Latest Temp = {latest_temp_today:.2f}°F (at {latest_dt_today})")
+    print(f"Data for target date {target_date_str_to_filter}: Max Temp = {max_temp_celsius:.2f}°C,  {max_temp_today:.2f}°F (NWS Rounded: {nws_rounded_max_temp}°F), Latest Temp = {latest_temp_today:.2f}°F (at {latest_dt_today})")
+    print(f"Max temp on 5-min cadence? {'Yes' if max_temp_on_5min_cadence else 'No'}")
     print(f"Has high temp potentially been reached? {'Yes' if high_temp_reached else 'No'}")
 
-    return max_temp_today, latest_temp_today, high_temp_reached, temp_data_list, station_reported_tz
+    return max_temp_today, latest_temp_today, high_temp_reached, temp_data_list, station_reported_tz, max_temp_on_5min_cadence
