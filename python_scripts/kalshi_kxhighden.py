@@ -441,7 +441,8 @@ if __name__ == "__main__":
 
                 # Combine parts and send email
                 full_body = body_intro + body_trades + body_summary + body_temp_log
-                send_email(subject, full_body)
+                if len(alert_list) > 0:
+                    send_email(subject, full_body)
             else:
                 print("No markets found for analysis.")
 
