@@ -18,7 +18,7 @@ SENDER_EMAIL = os.getenv("SENDER_EMAIL", "vivek.zapier@gmail.com")
 
 # --- NEW PROBABILISTIC APPROACH CONFIGURATION ---
 USE_PROBABILISTIC_APPROACH = True  # Set to False to use original conservative approach
-MIN_EXPECTED_VALUE = 90.0  # Minimum expected value required to trade (in dollars)
+MIN_EXPECTED_VALUE = 1.0  # Minimum expected value required to trade (in dollars)
 PAYOUT_AMOUNT = 100.0  # Standard payout for No contracts
 
 try:
@@ -112,7 +112,7 @@ def calculate_market_yes_probability(temp_range_f, market_min, market_max):
 
 def calculate_expected_value(no_probability, contract_cost, payout=PAYOUT_AMOUNT):
     """Calculate expected value of a No contract"""
-    if no_probability <= 0.5:
+    if no_probability <= 0.9:
         return -1
     return (no_probability * payout) - contract_cost
 
