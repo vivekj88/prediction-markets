@@ -17,8 +17,8 @@ SMTP_PORT = 587
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "vivek.zapier@gmail.com")
 
 # --- NEW PROBABILISTIC APPROACH CONFIGURATION ---
-USE_PROBABILISTIC_APPROACH = False  # Set to False to use original conservative approach
-MIN_EXPECTED_VALUE = 1.0  # Minimum expected value required to trade (in dollars)
+USE_PROBABILISTIC_APPROACH = True  # Set to False to use original conservative approach
+MIN_EXPECTED_VALUE = 90.0  # Minimum expected value required to trade (in dollars)
 PAYOUT_AMOUNT = 100.0  # Standard payout for No contracts
 
 try:
